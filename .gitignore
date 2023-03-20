@@ -1,3 +1,6 @@
 .env
 .idea
-/env
+idea
+.__pychache__
+env/
+__pycache__/

@@ -24,3 +24,8 @@ class UserDetail(UserList):
 
 class UserCreateUpdate(BaseUser):
     password: str
+
+
+class TokenPayload(BaseModel):
+    sub: Optional[int] = None
+

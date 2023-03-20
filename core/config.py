@@ -6,7 +6,7 @@ from decouple import config
 
 class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-
+    API_V1_STR: str = "/api/v1"
     SMTP_TLS: bool = True
     SMTP_PORT: Optional[int] = None
     SMTP_HOST: Optional[str] = None
