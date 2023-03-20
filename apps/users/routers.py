@@ -20,8 +20,13 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[BaseUser], tags=['users'])
-def get_user_list(db: Session = Depends(get_db), skip: int = 0, limit: int = 10) -> Any:
-    return db.query(User).all()[skip:limit]
+def get_user_list(db: Session = Depends(get_db), current_user=Depends(get_current_user)) -> Any:
+    if user.is_admin(current_user):
+        return user.get_all_users(db)
+    raise HTTPException(
+        status_code=400,
+        detail="Not enough privileges"
+    )
 
 
 @router.get("/{username}", response_model=UserDetail, tags=['users'], description="Get user by username")
@@ -56,6 +61,7 @@ def get_user_by_email(
     return user_obj
 
 
+@router.get("/{id}", response_model=UserDetail)
 def get_user_by_id(
         user_id: int,
         db: Session = Depends(get_db),
@@ -70,4 +76,8 @@ def get_user_by_id(
         )
     return user_obj
 
+
+@router.get("/me")
+def get_me(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> User:
+    return current_user
 

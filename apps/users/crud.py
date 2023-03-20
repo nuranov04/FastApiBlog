@@ -1,4 +1,5 @@
 from typing import Any, Dict, Optional, Union
+from datetime import date
 
 from sqlalchemy.orm import Session
 
@@ -8,6 +9,9 @@ from utils import CRUDBase
 
 
 class UserCruD(CRUDBase[User, UserCreateUpdate, UserCreateUpdate]):
+
+    def get_all_users(self, db: Session):
+        return db.query(User).all()
 
     def get_user_by_id(self, db: Session, *, user_id: str) -> Optional[User]:
         return db.query(User).filter_by(id=user_id).first()
@@ -23,6 +27,7 @@ class UserCruD(CRUDBase[User, UserCreateUpdate, UserCreateUpdate]):
             email=obj_in.email,
             password=get_password_hash(obj_in.password),
             fullname=obj_in.fullname,
+            date=date.today(),
             username=obj_in.username,
             bio=obj_in.bio
         )
