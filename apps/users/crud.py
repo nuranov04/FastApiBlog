@@ -45,10 +45,10 @@ class UserCruD(CRUDBase[User, UserCreateUpdate, UserCreateUpdate]):
         return user_obj
 
     def is_active(self, user_obj: User) -> bool:
-        return user.is_active
+        return user_obj.is_active
 
     def is_admin(self, user_obj: User) -> bool:
-        return user.is_admin
+        return user_obj.is_admin
 
 
 user = UserCruD(User)
