@@ -9,7 +9,6 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from apps import users
-# from apps.users.schemas import TokenPayload
 from core.config import settings
 from core.db import SessionLocal
 

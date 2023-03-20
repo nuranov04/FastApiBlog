@@ -2,16 +2,21 @@ from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.orm import Session
 
-from apps.users.db import User
-from apps.users.schemas import UserCreateUpdate
+from apps.users import User, UserCreateUpdate
 from core.security import get_password_hash, verify_password
-from utils.base_CRUD import CRUDBase
+from utils import CRUDBase
 
 
 class UserCruD(CRUDBase[User, UserCreateUpdate, UserCreateUpdate]):
 
+    def get_user_by_id(self, db: Session, *, user_id: str) -> Optional[User]:
+        return db.query(User).filter_by(id=user_id).first()
+
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         return db.query(User).filter_by(email=email).first()
+
+    def get_by_username(self, db: Session, *, username: str) -> Optional[User]:
+        return db.query(User).filter_by(username=username).first()
 
     def create(self, db: Session, *, obj_in: UserCreateUpdate) -> User:
         db_obj = User(
