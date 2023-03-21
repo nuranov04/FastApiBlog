@@ -1,25 +1,57 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
 
+from core.security import create_access_token, create_refresh_token
 from utils import get_db, get_current_user
 from .db import User
 from .crud import user
 from .schemas import (
-    BaseUser,
     UserList,
     UserDetail,
-    UserCreateUpdate,
-    TokenPayload,
-    Token
+    Token,
+    UserCreateUpdate
 )
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[BaseUser], tags=['users'])
+@router.post("/login", tags=["users"], response_model=Token, summary="Create access and refresh token for user")
+def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()) -> Any:
+    user_obj = user.authenticated(db=db, username=form_data.username, password=form_data.password)
+    if user_obj is not None:
+        return {
+            "access_token": create_access_token(user_obj.email),
+            "refresh_token": create_refresh_token(user_obj.email)
+        }
+
+
+@router.post("/register", response_model=UserList, tags=["users"], summary="Create new user")
+def create_user(user_obj: UserCreateUpdate, db: Session = Depends(get_db)) -> Any:
+    user_by_email = user.get_by_email(db, email=user_obj.email)
+    if user_by_email:
+        raise HTTPException(
+            status_code=400,
+            detail="email already exist"
+        )
+    user_by_username = user.get_by_username(db, username=user_obj.username)
+    if user_by_username:
+        raise HTTPException(
+            status_code=400,
+            detail="username already exist"
+        )
+    if len(user_obj.password) < 8:
+        raise HTTPException(
+            status_code=400,
+            detail="password must be less then 8 characters"
+        )
+    return user.create(db, obj_in=user_obj)
+
+
+@router.get("/", response_model=List[UserList], tags=['users'])
 def get_user_list(db: Session = Depends(get_db), current_user=Depends(get_current_user)) -> Any:
     if user.is_admin(current_user):
         return user.get_all_users(db)
@@ -61,7 +93,7 @@ def get_user_by_email(
     return user_obj
 
 
-@router.get("/{id}", response_model=UserDetail)
+@router.get("/{id}", response_model=UserDetail, tags=["users"], description="Get user by id")
 def get_user_by_id(
         user_id: int,
         db: Session = Depends(get_db),
@@ -77,7 +109,6 @@ def get_user_by_id(
     return user_obj
 
 
-@router.get("/me")
-def get_me(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> User:
+@router.get("/me", tags=["users"], response_model=UserDetail)
+def get_me(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> UserDetail:
     return current_user
-

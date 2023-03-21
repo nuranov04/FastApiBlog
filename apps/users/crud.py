@@ -4,7 +4,7 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from apps.users import User, UserCreateUpdate
-from core.security import get_password_hash, verify_password
+from core.security import get_hashed_password, verify_password
 from utils import CRUDBase
 
 
@@ -20,12 +20,13 @@ class UserCruD(CRUDBase[User, UserCreateUpdate, UserCreateUpdate]):
         return db.query(User).filter_by(email=email).first()
 
     def get_by_username(self, db: Session, *, username: str) -> Optional[User]:
-        return db.query(User).filter_by(username=username).first()
+        obj = db.query(User).filter_by(username=username).first()
+        return obj
 
     def create(self, db: Session, *, obj_in: UserCreateUpdate) -> User:
         db_obj = User(
             email=obj_in.email,
-            password=get_password_hash(obj_in.password),
+            password=get_hashed_password(obj_in.password),
             fullname=obj_in.fullname,
             date=date.today(),
             username=obj_in.username,
@@ -42,13 +43,13 @@ class UserCruD(CRUDBase[User, UserCreateUpdate, UserCreateUpdate]):
         else:
             update_data = obj_in.dict(exclude_unset=True)
         if update_data["password"]:
-            hashed_password = get_password_hash(update_data['password'])
+            hashed_password = get_hashed_password(update_data['password'])
             update_data["password"] = hashed_password
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    def authenticated(self, db: Session, *, email: str, password: str) -> Optional[User]:
-        user_obj = self.get_by_email(db, email=email)
-        if not user_obj:
+    def authenticated(self, db: Session, *, username: str, password: str) -> Optional[User]:
+        user_obj = self.get_by_username(db, username=username)
+        if user_obj is None:
             return None
         if not verify_password(password, user_obj.password):
             return None

@@ -1,2 +1,2 @@
 from .deps import *
-from base_CRUD import *
+from .base_CRUD import *

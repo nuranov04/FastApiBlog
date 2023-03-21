@@ -4,7 +4,6 @@ import jwt
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jwt import PyJWKError
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
@@ -12,8 +11,9 @@ from apps import users
 from core.config import settings
 from core.db import SessionLocal
 
-reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/login/access-token"
+reuseable_oauth = OAuth2PasswordBearer(
+    tokenUrl="/login",
+    scheme_name="JWT"
 )
 
 
@@ -26,17 +26,18 @@ def get_db() -> Generator:
 
 
 def get_current_user(
-        db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
+        db: Session = Depends(get_db), token: str = Depends(reuseable_oauth)
 ) -> users.db.User:
     try:
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+            token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
         token_data = users.TokenPayload(**payload)
-    except (PyJWKError, ValidationError):
+    except (jwt.PyJWKError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     user = users.user.get(db, id=token_data.sub)
     if not user:
@@ -56,4 +57,3 @@ def get_current_admin_user(current_user: users.User = Depends(get_current_user))
             status_code=400, detail="The user doesn't have enough privileges"
         )
     return current_user
-

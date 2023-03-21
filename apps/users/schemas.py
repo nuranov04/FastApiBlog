@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import date
 
 from pydantic import BaseModel, EmailStr
 
@@ -14,10 +15,12 @@ class BaseUser(BaseModel):
 
 
 class UserList(BaseUser):
+    date: date
     id: int
 
 
 class UserDetail(UserList):
+    date: date
     is_active: bool = False
     is_admin: bool = False
 
@@ -32,4 +35,4 @@ class TokenPayload(BaseModel):
 
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    refresh_token: str

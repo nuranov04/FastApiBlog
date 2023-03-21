@@ -1,8 +1,7 @@
-from time import time
-from typing import Dict
+from typing import Any, Union
+from datetime import datetime, timedelta
 
-import jwt
-
+from jose import jwt
 from passlib.context import CryptContext
 
 from .config import settings
@@ -10,37 +9,25 @@ from .config import settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_password_hash(password: str) -> str:
+def get_hashed_password(password: str) -> str:
     return pwd_context.hash(password)
-
-
-def token_response(token: str):
-    return {
-        "access_token": token
-    }
-
-
-def signJWT(user_id: str) -> Dict[str, str]:
-    payload = {
-        "user_id": user_id,
-        "expires": time() + 36000
-    }
-    token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
-
-    return token_response(token)
-
-
-def decodeJWT(token: str) -> dict:
-    try:
-        decoded_token = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
-        return decoded_token if decoded_token["expires"] >= time() else None
-    except:
-        return {}
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+def create_access_token(subject: Union[str, Any]) -> str:
+    expires_delta = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode = {"exp": expires_delta, "sub": str(subject)}
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, settings.JWT_ALGORITHM)
+    return encoded_jwt
+
+
+def create_refresh_token(subject: Union[str, Any]) -> str:
+    expires_delta = datetime.utcnow() + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+
+    to_encode = {"exp": expires_delta, "sub": str(subject)}
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, settings.JWT_ALGORITHM)
+    return encoded_jwt
