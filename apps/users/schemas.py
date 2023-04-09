@@ -15,14 +15,14 @@ class BaseUser(BaseModel):
 
 
 class UserList(BaseUser):
-    date: date
     id: int
+    date: date
 
 
 class UserDetail(UserList):
-    date: date
     is_active: bool = False
     is_admin: bool = False
+    date: date
 
 
 class UserCreateUpdate(BaseUser):

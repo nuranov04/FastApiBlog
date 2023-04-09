@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
@@ -16,7 +16,9 @@ from .schemas import (
     UserCreateUpdate
 )
 
-router = APIRouter()
+router = APIRouter(
+    tags=["users"]
+)
 
 
 @router.post("/login", tags=["users"], response_model=Token, summary="Create access and refresh token for user")
@@ -51,7 +53,7 @@ def create_user(user_obj: UserCreateUpdate, db: Session = Depends(get_db)) -> An
     return user.create(db, obj_in=user_obj)
 
 
-@router.get("/", response_model=List[UserList], tags=['users'])
+@router.get("/all", response_model=List[UserList], tags=['users'])
 def get_user_list(db: Session = Depends(get_db), current_user=Depends(get_current_user)) -> Any:
     if user.is_admin(current_user):
         return user.get_all_users(db)

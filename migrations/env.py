@@ -9,6 +9,7 @@ from alembic import context
 
 from core.db import SQLALCHEMY_DATABASE_URL, Base
 from apps.users import User
+from apps.posts import Post, PostImage
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
