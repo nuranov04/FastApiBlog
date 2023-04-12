@@ -19,6 +19,9 @@ class PostBase(BaseModel):
     title: str
     description: str
 
+    class Config:
+        orm_mode = True
+
 
 class PostImageInPost(PostImageBase):
     image: str
@@ -26,8 +29,11 @@ class PostImageInPost(PostImageBase):
 
 class PostList(PostBase):
     id: int
-    owner: UserDetail
-    post_images: List[PostImageInPost] = None
+    # owner_id: int
+
+
+class PostDetail(PostList):
+    image: PostImageInPost
 
 
 class PostImageCreate(PostImageInPost):
@@ -35,7 +41,6 @@ class PostImageCreate(PostImageInPost):
 
 
 class PostCreate(PostBase):
-    id: int
     owner: UserDetail
 
 

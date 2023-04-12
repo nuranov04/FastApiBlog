@@ -11,13 +11,16 @@ class Post(Base):
     title = Column(String(length=256))
     description = Column(Text)
     owner_id = Column(Integer, ForeignKey("user.id"))
-    owner = relationship("user", back_populates="posts")
+
+    owner = relationship("User", back_populates="posts")
+    images = relationship("PostImage", back_populates="post")
 
 
 class PostImage(Base):
     __tablename__ = "post_image"
 
     id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=True)
-    post_id = Column(String, ForeignKey("post.id"))
-    post = relationship("post", back_populates="post_image")
     image = Column(String)
+    post_id = Column(Integer, ForeignKey("post.id"))
+
+    post = relationship("Post", back_populates="images")

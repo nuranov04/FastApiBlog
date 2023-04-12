@@ -9,12 +9,12 @@ from utils import CRUDBase
 
 class UserCrud(CRUDBase[User, UserCreateUpdate, UserCreateUpdate]):
 
-    def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
-        return db.query(User).filter_by(email=email).first()
-
-    def get_by_username(self, db: Session, *, username: str) -> Optional[User]:
-        obj = db.query(User).filter_by(username=username).first()
+    def get_by_email(self, db: Session, *, email: str):
+        obj = db.query(User).filter_by(email=email).first()
         return obj
+
+    def get_by_username(self, db: Session, *, username: str):
+        return db.query(User).filter_by(username=username).first()
 
     def update_password(
             self,

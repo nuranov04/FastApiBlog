@@ -1,4 +1,6 @@
+from datetime import date
 from typing import Any, List
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
@@ -23,7 +25,11 @@ router = APIRouter(
 
 @router.post("/login", tags=["users"], response_model=Token, summary="Create access and refresh token for user")
 def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()) -> Any:
-    user_obj = user.authenticated(db=db, username=form_data.username, password=form_data.password)
+    user_obj = user.authenticated(
+        db=db,
+        username=form_data.username,
+        password=form_data.password
+    )
     if user_obj is not None:
         return {
             "access_token": create_access_token(user_obj.email),
@@ -34,13 +40,13 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
 @router.post("/register", response_model=UserList, tags=["users"], summary="Create new user")
 def create_user(user_obj: UserCreateUpdate, db: Session = Depends(get_db)) -> Any:
     user_by_email = user.get_by_email(db, email=user_obj.email)
-    if user_by_email:
+    if user_by_email is not None:
         raise HTTPException(
             status_code=400,
             detail="email already exist"
         )
     user_by_username = user.get_by_username(db, username=user_obj.username)
-    if user_by_username:
+    if user_by_username is not None:
         raise HTTPException(
             status_code=400,
             detail="username already exist"
@@ -54,13 +60,13 @@ def create_user(user_obj: UserCreateUpdate, db: Session = Depends(get_db)) -> An
 
 
 @router.get("/all", response_model=List[UserList], tags=['users'])
-def get_user_list(db: Session = Depends(get_db), current_user=Depends(get_current_user)) -> Any:
-    if user.is_admin(current_user):
-        return user.get_all_users(db)
-    raise HTTPException(
-        status_code=400,
-        detail="Not enough privileges"
-    )
+def get_user_list(db: Session = Depends(get_db)) -> Any:
+    # if user.is_admin(current_user):
+    return user.get_multi(db)
+    # raise HTTPException(
+    #     status_code=400,
+    #     detail="Not enough privileges"
+    # )
 
 
 @router.get("/{username}", response_model=UserDetail, tags=['users'], description="Get user by username")
