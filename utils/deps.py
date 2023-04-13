@@ -28,20 +28,23 @@ def get_db() -> Generator:
 def get_current_user(
         db: Session = Depends(get_db), token: str = Depends(reuseable_oauth)
 ) -> users.db.User:
+
     try:
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
         )
-        token_data = users.TokenPayload(**payload)
+        token_data = users.TokenPayload(sub=payload['sub'])
     except (jwt.PyJWKError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    user = users.user.get(db, id=token_data.sub)
-    if not user:
+    user = users.user.get_by_email(db, email=token_data.sub)
+    if user is None:
         raise HTTPException(status_code=404, detail="User not found")
+    print(user)
+    print(user.username)
     return user
 
 

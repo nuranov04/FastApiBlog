@@ -40,12 +40,14 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
 @router.post("/register", response_model=UserList, tags=["users"], summary="Create new user")
 def create_user(user_obj: UserCreateUpdate, db: Session = Depends(get_db)) -> Any:
     user_by_email = user.get_by_email(db, email=user_obj.email)
+    print(user_by_email)
     if user_by_email is not None:
         raise HTTPException(
             status_code=400,
             detail="email already exist"
         )
     user_by_username = user.get_by_username(db, username=user_obj.username)
+    print(user_by_username)
     if user_by_username is not None:
         raise HTTPException(
             status_code=400,
@@ -69,7 +71,7 @@ def get_user_list(db: Session = Depends(get_db)) -> Any:
     # )
 
 
-@router.get("/{username}", response_model=UserDetail, tags=['users'], description="Get user by username")
+@router.get("/get/{username}", response_model=UserDetail, tags=['users'], description="Get user by username")
 def get_user_by_username(
         username: str,
         db: Session = Depends(get_db),
@@ -85,7 +87,7 @@ def get_user_by_username(
     return user_obj
 
 
-@router.get("/{email}", response_model=UserDetail, tags=["users"], description="Get user by email")
+@router.get("/get/{email}", response_model=UserDetail, tags=["users"], description="Get user by email")
 def get_user_by_email(
         email: EmailStr,
         db: Session = Depends(get_db),
@@ -101,7 +103,7 @@ def get_user_by_email(
     return user_obj
 
 
-@router.get("/{id}", response_model=UserDetail, tags=["users"], description="Get user by id")
+@router.get("/get/{id}", response_model=UserDetail, tags=["users"], description="Get user by id")
 def get_user_by_id(
         user_id: int,
         db: Session = Depends(get_db),

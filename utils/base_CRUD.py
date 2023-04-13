@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from core.db import Base
+from core.security import get_hashed_password
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -25,7 +26,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
 
     def get(self, db: Session, model_id: Any) -> Optional[ModelType]:
-        return db.query(self.model).filter_by(self.model.id == model_id).first()
+        return db.query(self.model).filter_by(id=model_id).first()
 
     def get_multi(
             self, db: Session
@@ -35,8 +36,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)
         obj_in_data['date'] = date.today()
-        # setattr(obj_in_data, "date", date.today())
-
+        obj_in_data['password'] = get_hashed_password(obj_in_data['password'])
         db_obj = self.model(**obj_in_data)  # type: ignore
         db.add(db_obj)
         db.commit()

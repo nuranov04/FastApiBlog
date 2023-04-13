@@ -36,6 +36,7 @@ class UserCrud(CRUDBase[User, UserCreateUpdate, UserCreateUpdate]):
 
     def authenticated(self, db: Session, *, username: str, password: str) -> Optional[User]:
         user_obj = self.get_by_username(db, username=username)
+        print(user_obj)
         if user_obj is None:
             return None
         if not verify_password(password, user_obj.password):

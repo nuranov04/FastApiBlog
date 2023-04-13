@@ -30,7 +30,7 @@ class UserCreateUpdate(BaseUser):
 
 
 class TokenPayload(BaseModel):
-    sub: Optional[int] = None
+    sub: Optional[str] = None
 
 
 class Token(BaseModel):
