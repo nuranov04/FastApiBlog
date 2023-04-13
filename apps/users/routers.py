@@ -1,6 +1,4 @@
-from datetime import date
 from typing import Any, List
-import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
@@ -62,16 +60,16 @@ def create_user(user_obj: UserCreateUpdate, db: Session = Depends(get_db)) -> An
 
 
 @router.get("/all", response_model=List[UserList], tags=['users'])
-def get_user_list(db: Session = Depends(get_db)) -> Any:
-    # if user.is_admin(current_user):
-    return user.get_multi(db)
-    # raise HTTPException(
-    #     status_code=400,
-    #     detail="Not enough privileges"
-    # )
+def get_user_list(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> Any:
+    if user.is_admin(current_user):
+        return user.get_multi(db)
+    raise HTTPException(
+        status_code=400,
+        detail="Not enough privileges"
+    )
 
 
-@router.get("/get/{username}", response_model=UserDetail, tags=['users'], description="Get user by username")
+@router.get("/get/username", response_model=UserDetail, tags=['users'], description="Get user by username")
 def get_user_by_username(
         username: str,
         db: Session = Depends(get_db),
@@ -84,10 +82,15 @@ def get_user_by_username(
         raise HTTPException(
             status_code=400, detail="Not enough privileges"
         )
+    if user_obj is None:
+        raise HTTPException(
+            status_code=400,
+            detail="user not found"
+        )
     return user_obj
 
 
-@router.get("/get/{email}", response_model=UserDetail, tags=["users"], description="Get user by email")
+@router.get("/get/email", response_model=UserDetail, tags=["users"], description="Get user by email")
 def get_user_by_email(
         email: EmailStr,
         db: Session = Depends(get_db),
@@ -100,21 +103,31 @@ def get_user_by_email(
         raise HTTPException(
             status_code=400, detail="Not enough privileges"
         )
+    if user_obj is None:
+        raise HTTPException(
+            status_code=400,
+            detail="user not fount"
+        )
     return user_obj
 
 
-@router.get("/get/{id}", response_model=UserDetail, tags=["users"], description="Get user by id")
+@router.get("/get/id", response_model=UserDetail, tags=["users"], description="Get user by id")
 def get_user_by_id(
         user_id: int,
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ) -> Any:
-    user_obj = user.get_user_by_id(db, user_id=user_id)
+    user_obj = user.get(db, model_id=user_id)
     if user_obj == current_user:
         return user_obj
     if not user.is_admin(current_user):
         raise HTTPException(
             status_code=400, detail="Not enough privileges"
+        )
+    if user_obj is None:
+        raise HTTPException(
+            status_code=400,
+            detail="user not fount"
         )
     return user_obj
 

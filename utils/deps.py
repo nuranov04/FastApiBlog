@@ -43,8 +43,6 @@ def get_current_user(
     user = users.user.get_by_email(db, email=token_data.sub)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    print(user)
-    print(user.username)
     return user
 
 
