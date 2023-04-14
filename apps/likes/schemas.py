@@ -19,3 +19,7 @@ class LikeDetail(LikeList):
 
 class LikeCreate(BaseLike):
     pass
+
+
+class LikeUpdate(BaseLike):
+    pass
