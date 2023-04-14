@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
@@ -22,6 +23,9 @@ class PostCrud(CRUDBase[Post, PostCreate, PostUpdate]):
 
     def get_all_user_posts(self, db: Session, user_id: int):
         return db.query(Post).filter_by(owner_id=user_id)
+
+    def get_multi(self, db: Session):
+        return db.query(Post)
 
     def create(
             self,

@@ -31,8 +31,13 @@ def get_post_list(
         description: str = None
 ):
     posts = post.get_multi(db=db)
-    user_posts = post.get_all_user_posts(db=db, user_id=current_user.id)
-    return posts
+    if title is not None:
+        posts = posts.filter_by(title=title)
+    if owner_id is not None:
+        posts = posts.filter_by(owner_id=owner_id)
+    if description is not None:
+        posts = posts.filter_by(description=description)
+    return posts.all()
 
 
 @routers.get("/{id}", response_model=PostDetail)
@@ -94,7 +99,6 @@ def create_post_image(item: PostImageCreate,
                       current_user: User = Depends(get_current_user)):
 
     post_obj = post.get(db=db, model_id=item.post_id)
-    print(post_obj)
     if post_obj.owner_id != current_user.id:
         raise HTTPException(
             status_code=400,
@@ -105,5 +109,4 @@ def create_post_image(item: PostImageCreate,
             status_code=400,
             detail="post not found"
         )
-    print("dasdsada")
     return post_image.create(db=db, obj_in=item)
