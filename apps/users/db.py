@@ -20,3 +20,4 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
 
     posts = relationship("Post", back_populates="owner", cascade="all, delete")
+    likes = relationship("Like", backref="liker", cascade="all, delete", viewonly=True)

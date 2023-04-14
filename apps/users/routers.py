@@ -38,23 +38,16 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
 @router.post("/register", response_model=UserList, tags=["users"], summary="Create new user")
 def create_user(user_obj: UserCreateUpdate, db: Session = Depends(get_db)) -> Any:
     user_by_email = user.get_by_email(db, email=user_obj.email)
-    print(user_by_email)
     if user_by_email is not None:
         raise HTTPException(
             status_code=400,
             detail="email already exist"
         )
     user_by_username = user.get_by_username(db, username=user_obj.username)
-    print(user_by_username)
     if user_by_username is not None:
         raise HTTPException(
             status_code=400,
             detail="username already exist"
-        )
-    if len(user_obj.password) < 8:
-        raise HTTPException(
-            status_code=400,
-            detail="password must be less then 8 characters"
         )
     return user.create(db, obj_in=user_obj)
 

@@ -21,5 +21,21 @@ class LikeCrud(CRUDBase[Like, LikeCreate, LikeUpdate]):
     ) -> List[Like]:
         return db.query(Like).filter(Like.user_id == user_id).all()
 
+    def get_by_user_id_and_post_id(
+            self, db: Session,
+            user_id: int,
+            post_id: int
+    ):
+        return db.query(Like).filter_by(user_id=user_id, post_id=post_id).first()
+
+    def check_like_in_db(
+            self, db: Session,
+            user_id: int,
+            post_id: int
+    ) -> bool:
+        if self.get_by_user_id_and_post_id(db=db, user_id=user_id, post_id=post_id) is None:
+            return False
+        return True
+
 
 like = LikeCrud(Like)
