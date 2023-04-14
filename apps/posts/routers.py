@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from utils import get_db, get_current_user
+from . import Post
 from .schemas import (
     PostImageBase,
     PostImageInPost,
@@ -32,22 +33,17 @@ def get_post_list(
 ):
     posts = post.get_multi(db=db)
     if title is not None:
-        posts = posts.filter_by(title=title)
+        posts = posts.filter(Post.title.contains(title))
     if owner_id is not None:
         posts = posts.filter_by(owner_id=owner_id)
     if description is not None:
-        posts = posts.filter_by(description=description)
+        posts = posts.filter(Post.description.contains(description))
     return posts.all()
 
 
 @routers.get("/{id}", response_model=PostDetail)
 def get_post(model_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     post_obj = post.get(db=db, model_id=model_id)
-    if post_obj.owner_id != current_user.id:
-        return HTTPException(
-            status_code=400,
-            detail="Your are not owner"
-        )
     post_image_obj = post_image.get_post_images(db=db, post_id=model_id)
     setattr(post_obj, "image", post_image_obj)
     return post_obj
@@ -97,7 +93,6 @@ def delete_post(
 def create_post_image(item: PostImageCreate,
                       db: Session = Depends(get_db),
                       current_user: User = Depends(get_current_user)):
-
     post_obj = post.get(db=db, model_id=item.post_id)
     if post_obj.owner_id != current_user.id:
         raise HTTPException(

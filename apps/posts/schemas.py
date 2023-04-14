@@ -2,8 +2,6 @@ from typing import List
 
 from pydantic import BaseModel
 
-from apps.users import UserDetail
-
 
 class PostImageBase(BaseModel):
     image: str
