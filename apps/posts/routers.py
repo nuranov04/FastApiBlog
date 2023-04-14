@@ -15,6 +15,7 @@ from .schemas import (
     PostUpdate
 )
 from .crud import post, post_image
+from ..users import User
 
 routers = APIRouter(
     tags=["posts"]
@@ -22,9 +23,16 @@ routers = APIRouter(
 
 
 @routers.get("/", response_model=List[PostList])
-def get_post_list(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def get_post_list(
+        db: Session = Depends(get_db),
+        current_user=Depends(get_current_user),
+        title: str = None,
+        owner_id: str | int = None,
+        description: str = None
+):
+    posts = post.get_multi(db=db)
     user_posts = post.get_all_user_posts(db=db, user_id=current_user.id)
-    return user_posts
+    return posts
 
 
 @routers.get("/{id}", response_model=PostDetail)
@@ -44,11 +52,12 @@ def get_post(model_id: int, db: Session = Depends(get_db), current_user=Depends(
 def create_post(
         item: PostCreate,
         db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
 ):
-    return post.create(db=db, obj_in=item)
+    return post.create(db=db, obj_in=item, user_id=current_user.id)
 
 
-@routers.post("/", response_model=PostUpdate)
+@routers.patch("/", response_model=PostUpdate)
 def update_post(
         model_id: int,
         update_item: PostUpdate,
@@ -77,3 +86,24 @@ def delete_post(
         status_code=400,
         detail="You are not owner of post"
     )
+
+
+@routers.post("/images", response_model=PostImageInPost)
+def create_post_image(item: PostImageCreate,
+                      db: Session = Depends(get_db),
+                      current_user: User = Depends(get_current_user)):
+
+    post_obj = post.get(db=db, model_id=item.post_id)
+    print(post_obj)
+    if post_obj.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="this is post not your"
+        )
+    if post_obj is None:
+        raise HTTPException(
+            status_code=400,
+            detail="post not found"
+        )
+    print("dasdsada")
+    return post_image.create(db=db, obj_in=item)

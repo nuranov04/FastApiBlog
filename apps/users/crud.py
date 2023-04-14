@@ -1,5 +1,7 @@
+from datetime import date
 from typing import Optional
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from apps.users import User, UserCreateUpdate
@@ -15,6 +17,16 @@ class UserCrud(CRUDBase[User, UserCreateUpdate, UserCreateUpdate]):
 
     def get_by_username(self, db: Session, *, username: str):
         return db.query(User).filter_by(username=username).first()
+
+    def create(self, db: Session, *, obj_in: UserCreateUpdate) -> User:
+        obj_in_data = jsonable_encoder(obj_in)
+        obj_in_data['date'] = date.today()
+        obj_in_data['password'] = get_hashed_password(obj_in_data['password'])
+        db_obj = self.model(**obj_in_data)  # type: ignore
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
 
     def update_password(
             self,

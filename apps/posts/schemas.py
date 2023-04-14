@@ -1,17 +1,19 @@
+from typing import List
+
 from pydantic import BaseModel
 
 from apps.users import UserDetail
 
 
 class PostImageBase(BaseModel):
-    id: str
+    image: str
 
     class Config:
         orm_mode = True
 
 
 class PostImageUpdate(PostImageBase):
-    image: str
+    id: int
 
 
 class PostBase(BaseModel):
@@ -23,24 +25,25 @@ class PostBase(BaseModel):
 
 
 class PostImageInPost(PostImageBase):
-    image: str
+    id: int
+    post_id: int
 
 
 class PostList(PostBase):
     id: int
-    # owner_id: int
+    owner_id: int
 
 
 class PostDetail(PostList):
-    image: PostImageInPost
+    image: List[PostImageInPost]
 
 
-class PostImageCreate(PostImageInPost):
-    post: PostList
+class PostImageCreate(PostImageBase):
+    post_id: int
 
 
 class PostCreate(PostBase):
-    owner: UserDetail
+    pass
 
 
 class PostUpdate(PostBase):
