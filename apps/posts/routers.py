@@ -1,22 +1,21 @@
-from typing import Any, List
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from utils import get_db, get_current_user
+from utils.deps import get_db, get_current_user
 from . import Post
 from .schemas import (
-    PostImageBase,
     PostImageInPost,
     PostImageCreate,
-    PostBase,
     PostDetail,
     PostList,
     PostCreate,
     PostUpdate
 )
 from .crud import post, post_image
-from ..users import User
+from apps.users.db import User
+
 
 routers = APIRouter(
     tags=["posts"]
@@ -45,6 +44,7 @@ def get_post_list(
 def get_post(model_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     post_obj = post.get(db=db, model_id=model_id)
     post_image_obj = post_image.get_post_images(db=db, post_id=model_id)
+    setattr(post_obj, "likes_count", len(post_obj.likes))
     setattr(post_obj, "image", post_image_obj)
     return post_obj
 

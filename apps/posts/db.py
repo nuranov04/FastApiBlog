@@ -20,6 +20,7 @@ class Post(Base):
     created_at = Column(Date)
     owner_id = Column(Integer, ForeignKey("user.id"))
 
+    likes = relationship("Like", backref="post_like", viewonly=True)
     owner = relationship("User", back_populates="posts")
     images = relationship("PostImage", back_populates="post")
 

@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from apps.users import router as users
-from apps.posts import routers as posts
-from apps.likes import router as likes
+from apps.users.routers import router as users
+from apps.posts.routers import routers as posts
+from apps.likes.routers import router as likes
 
 router = APIRouter()
 

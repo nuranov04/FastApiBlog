@@ -1,22 +1,17 @@
 from datetime import date
-from typing import Any
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
-from utils import CRUDBase
+from utils.base_CRUD import CRUDBase
 from .db import Post, PostImage
 from .schemas import (
-    PostImageBase,
-    PostImageInPost,
     PostImageCreate,
     PostImageUpdate,
-    PostBase,
-    PostList,
     PostCreate,
     PostUpdate,
 )
-from ..users import user
+from apps.users.routers import user
 
 
 class PostCrud(CRUDBase[Post, PostCreate, PostUpdate]):

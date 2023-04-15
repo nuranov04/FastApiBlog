@@ -6,7 +6,7 @@ from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
 
 from core.security import create_access_token, create_refresh_token
-from utils import get_db, get_current_user
+from utils.deps import get_db, get_current_user
 from .db import User
 from .crud import user
 from .schemas import (

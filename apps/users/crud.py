@@ -4,9 +4,10 @@ from typing import Optional
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
-from apps.users import User, UserCreateUpdate
+from apps.users.db import User
+from apps.users.schemas import UserCreateUpdate
 from core.security import get_hashed_password, verify_password
-from utils import CRUDBase
+from utils.base_CRUD import CRUDBase
 
 
 class UserCrud(CRUDBase[User, UserCreateUpdate, UserCreateUpdate]):

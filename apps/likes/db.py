@@ -22,6 +22,6 @@ class Like(Base):
 
     user_id = Column(Integer, ForeignKey("user.id"))
 
-    post = relationship("Post", backref="likes")
+    post = relationship("Post", backref="post_likes")
 
-    user = relationship("User", backref="like")
+    user = relationship("User", backref="user_likes", viewonly=True)

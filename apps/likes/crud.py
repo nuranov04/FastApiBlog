@@ -2,8 +2,8 @@ from typing import List
 
 from sqlalchemy.orm import Session
 
-from utils import CRUDBase
-from apps.likes import Like
+from utils.base_CRUD import CRUDBase
+from apps.likes.db import Like
 from .schemas import LikeCreate, LikeUpdate
 
 

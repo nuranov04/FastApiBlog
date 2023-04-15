@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from apps.users.db import User
+from apps.likes.crud import like
 from apps.likes.schemas import (
     LikeList,
     LikeCreate,
     LikeDetail,
-    BaseLike
 )
-from apps.likes import like
-from utils import get_db, get_current_user
-from apps.users import User
+from utils.deps import get_db, get_current_user
 from apps.posts import post
 router = APIRouter(
     tags=['likes']

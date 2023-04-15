@@ -2,6 +2,8 @@ from typing import List
 
 from pydantic import BaseModel
 
+from apps.likes.schemas import LikeList
+
 
 class PostImageBase(BaseModel):
     image: str
@@ -32,10 +34,6 @@ class PostList(PostBase):
     owner_id: int
 
 
-class PostDetail(PostList):
-    image: List[PostImageInPost]
-
-
 class PostImageCreate(PostImageBase):
     post_id: int
 
@@ -46,3 +44,9 @@ class PostCreate(PostBase):
 
 class PostUpdate(PostBase):
     pass
+
+
+class PostDetail(PostList):
+    image: List[PostImageInPost]
+    likes_count: int
+    likes: List[LikeList]
