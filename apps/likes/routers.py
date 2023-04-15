@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -15,7 +17,7 @@ router = APIRouter(
 )
 
 
-@router.get("/post")
+@router.get("/post", response_model=List[LikeList])
 def get_post_likes_list(
         post_id: int,
         db: Session = Depends(get_db),
@@ -24,7 +26,7 @@ def get_post_likes_list(
     return like.get_post_likes(db=db, post_id=post_id)
 
 
-@router.get("/user")
+@router.get("/user", response_model=List[LikeList])
 def get_post_user_likes(
         user_id: int,
         db: Session = Depends(get_db),
