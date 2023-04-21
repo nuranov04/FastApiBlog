@@ -49,4 +49,3 @@ class PostUpdate(PostBase):
 class PostDetail(PostList):
     image: List[PostImageInPost]
     likes_count: int
-    likes: List[LikeList]

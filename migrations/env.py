@@ -8,9 +8,10 @@ from sqlalchemy import pool
 from alembic import context
 
 from core.db import SQLALCHEMY_DATABASE_URL, Base
-from apps.users import User
+from apps.users.db import User
 from apps.posts import Post, PostImage
-from apps.likes import Like
+from apps.likes.db import Like
+from apps.comments.db import Comment
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

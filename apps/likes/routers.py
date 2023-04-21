@@ -11,7 +11,7 @@ from apps.likes.schemas import (
     LikeDetail,
 )
 from utils.deps import get_db, get_current_user
-from apps.posts import post
+from apps.posts.crud import post
 router = APIRouter(
     tags=['likes']
 )

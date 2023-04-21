@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from utils.deps import get_db, get_current_user
-from . import Post
+from .db import Post
 from .schemas import (
     PostImageInPost,
     PostImageCreate,
@@ -40,7 +40,7 @@ def get_post_list(
     return posts.all()
 
 
-@routers.get("/{id}", response_model=PostDetail)
+@routers.get("/{pk}", response_model=PostDetail)
 def get_post(model_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     post_obj = post.get(db=db, model_id=model_id)
     post_image_obj = post_image.get_post_images(db=db, post_id=model_id)
@@ -58,7 +58,7 @@ def create_post(
     return post.create(db=db, obj_in=item, user_id=current_user.id)
 
 
-@routers.patch("/", response_model=PostUpdate)
+@routers.put("/", response_model=PostUpdate)
 def update_post(
         model_id: int,
         update_item: PostUpdate,
