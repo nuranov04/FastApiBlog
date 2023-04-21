@@ -1,5 +1,3 @@
-import sys
-
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -9,9 +7,10 @@ from alembic import context
 
 from core.db import SQLALCHEMY_DATABASE_URL, Base
 from apps.users.db import User
-from apps.posts import Post, PostImage
+from apps.posts.db import Post, PostImage
 from apps.likes.db import Like
 from apps.comments.db import Comment
+from apps.followers.db import Follower
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
